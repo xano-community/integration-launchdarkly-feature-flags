@@ -21,7 +21,7 @@ function "launchdarkly_toggle_flag" {
         instructions: [{ kind: $kind }]
       }
     }
-    var.update $params { value = $params|set_ifnotnull:"comment":$input.comment }
+    var.update $params { value = $params|set_ifnotempty:"comment":$input.comment }
 
     api.request {
       url = "https://app.launchdarkly.com/api/v2/flags/" ~ $input.project_key ~ "/" ~ $input.flag_key
@@ -35,7 +35,7 @@ function "launchdarkly_toggle_flag" {
 
     precondition ($api_result.response.status == 200) {
       error_type = "standard"
-      error = "LaunchDarkly API error: " ~ $api_result.response.result
+      error = "LaunchDarkly API error: " ~ ($api_result.response.result|json_encode)
     }
 
     var $result { value = $api_result.response.result }
